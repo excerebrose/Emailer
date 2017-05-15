@@ -14,15 +14,19 @@ mongoose.connect(config.DB_URL);
 db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
-//Mongo Models
+//Mongo Model Schemas
 const EmailSchema = mongoose.Schema({
     from: String,
+    name: String,
+  //  attachments: [String],
     subject: String,
     message: String
 });
 
+//Mongo Models
 let Email = mongoose.model('Emails', EmailSchema);
 
+//Handlers
 db.once('open', function() {
     console.log("Connection to DB Establish");
     app.listen(config.PORT, () => {
