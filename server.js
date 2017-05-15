@@ -2,14 +2,14 @@ const express = require('express');
 const bodyParser= require('body-parser');
 const mongoose = require('mongoose');
 
-const config = require('./config');
+require('dotenv').config({path: './config.env'});
 
 let db = null;
 const app = express();
 
 
 app.use(bodyParser.urlencoded({extended: true}));
-mongoose.connect(config.DB_URL);
+mongoose.connect(process.env.DB_URL);
 
 db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -29,8 +29,8 @@ let Email = mongoose.model('Emails', EmailSchema);
 //Handlers
 db.once('open', function() {
     console.log("Connection to DB Establish");
-    app.listen(config.PORT, () => {
-        console.info('Listening on port ' + config.PORT);
+    app.listen(process.env.PORT, () => {
+        console.info('Listening on port ' + process.env.PORT);
     });
     app.get('/', (req, res) => {
         res.sendFile(__dirname + '/client/index.html')
