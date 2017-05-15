@@ -15,12 +15,13 @@ db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
 //Mongo Models
-const QuoteSchema = mongoose.Schema({
-    name: String,
-    quote: String,
+const EmailSchema = mongoose.Schema({
+    from: String,
+    subject: String,
+    message: String
 });
 
-let Quote = mongoose.model('Quotes', QuoteSchema);
+let Email = mongoose.model('Emails', EmailSchema);
 
 db.once('open', function() {
     console.log("Connection to DB Establish");
@@ -30,8 +31,8 @@ db.once('open', function() {
     app.get('/', (req, res) => {
         res.sendFile(__dirname + '/client/index.html')
     });
-    app.post('/quotes', (req, res) => {
-        new Quote(req.body)
+    app.post('/new-email', (req, res) => {
+        new Email(req.body)
         .save((err, res) => {
             console.log("Saved: "+ res);
         })

@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MY APP</title>
+  <title>Email Tester</title>
 </head>
 <body>
   May Node and Express be with you.
-  <form action="/quotes" method="POST">
-        <input type="text" placeholder="name" name="name">
-        <input type="text" placeholder="quote" name="quote">
+  <form action="/new-email" method="POST">
+        <input type="text" placeholder="From" name="from">
+        <input type="text" placeholder="Subject" name="subject">
+        <input type="text" placeholder="Message" name="message">
         <button type="submit">Submit</button>
     </form>
 </body>
