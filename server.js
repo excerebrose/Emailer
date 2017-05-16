@@ -34,41 +34,40 @@ sendEmail = (emailObject) => {
 parseToSMS = (emailObject) => {
     const maxChars = 1500; //Changed to 1500 because of Twilio's injection into free accounts - move it up to 1600 later'
     const continueMsg = "\nContinued in Next SMS. - Number ";
+
     const formattedDate = moment(emailObject.date).format('ddd, MMM Do YYYY, h:m A');
     let attachmentString = 'None';
     if (emailObject.attachments.length > 0)
         attachmentString = emailObject.attachments.join (" ");
     const smsBodyHeader = `New email from:${emailObject.from}, at ${formattedDate}.\nSub: ${emailObject.subject}\nAttachments: ${attachmentString}\n`;
     
-    const messageBody = emailObject.message;
-    const availableChars = maxChars - smsBodyHeader.length;
+    let messageBody = emailObject.message;
+    let availableChars = maxChars - smsBodyHeader.length;
     
     let sms = smsBodyHeader + messageBody;
 
     if (messageBody.length > availableChars) {
-        console.log("HUGE ASS EMAIL DETECTED!");
-        //Take The first chunk
+        console.info("HUGE ASS EMAIL DETECTED! - Splitting to save us!");
         let counter = 1;
-        sms = smsBodyHeader + messageBody.substring(0, (availableChars - continueMsg.length)) + continueMsg + counter;
-        sendSMS(sms);
-
-        //Loop over remaining chunks and send them!
-        const chunk_size = maxChars - continueMsg.length;
-        let remainingMessages = messageBody.substring(availableChars, messageBody.length)
-
-        while(remainingMessages.length > 0 ) {
-            console.log("Sending remaining chunks...");
-            counter+=1;
-            if (remainingMessages.length <= chunk_size)
-                sms = remainingMessages + 'LAST';
+        availableChars -= (continueMsg.length + 2); // + 2 for the SMS Number place holder
+        while(messageBody.length > 0 ) {
+            console.info("Sending remaining chunks of size:" + availableChars);
+            if (counter == 1) {
+                sms = smsBodyHeader + messageBody.substring(0, availableChars) + continueMsg + counter;
+                availableChars += smsBodyHeader.length // No More headers in subsequent SMSes..
+            }
+            else if (messageBody.length <= availableChars) 
+                sms = messageBody;
             else
-                sms = remainingMessages.substring(0,chunk_size) + continueMsg + counter;
-            remainingMessages = remainingMessages.substring(chunk_size, remainingMessages.length);
+                sms = messageBody.substring(0,availableChars) + continueMsg + counter;
+            messageBody = messageBody.substring(availableChars, messageBody.length);
             sendSMS(sms);
+            counter+=1;
         }
     }
     else 
         sendSMS(sms);
+    console.info("Done Sending!");
 }
 
 parseToEmail = (smsObject) => {
@@ -98,7 +97,7 @@ let Email = mongoose.model('Emails', EmailSchema);
 
 //Handlers
 db.once('open', function() {
-    console.log("Connection to DB Establish");
+    console.log("Connection to DB Established");
     app.listen(process.env.PORT, () => {
         console.info('Listening on port ' + process.env.PORT);
     });

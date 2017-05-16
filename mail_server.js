@@ -27,4 +27,5 @@ notifier(inbox).on('mail', (mail) => {
         attachments,
     };
     request.post(process.env.WEBHOOK_TARGET).form(mailObject);
+    console.info("New Email Received!")
 }).start();
