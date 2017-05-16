@@ -15,7 +15,7 @@
     "twilio"
   ],
   "author": "Harjyot Singh",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "body-parser": "^1.17.1",
     "dotenv": "^4.0.0",
