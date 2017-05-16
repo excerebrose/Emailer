@@ -1,7 +1,7 @@
 {
-  "name": "traveller",
+  "name": "emailer",
   "version": "1.0.0",
-  "description": "My journey across India",
+  "description": "Recieve & Send emails via SMS - Twilio API",
   "main": "index.js",
   "scripts": {
     "dev:server": "nodemon ./server.js",
@@ -10,9 +10,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "travel",
-    "map",
-    "photo-blog"
+    "sms",
+    "email",
+    "twilio"
   ],
   "author": "Harjyot Singh",
   "license": "ISC",
