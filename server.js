@@ -9,7 +9,7 @@ const app = express();
 
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use('/static', express.static('./client/public'));
+app.use('/static', express.static(__dirname + '/client'));
 
 mongoose.connect(process.env.DB_URL);
 
@@ -20,9 +20,10 @@ db.on('error', console.error.bind(console, 'connection error:'));
 const EmailSchema = mongoose.Schema({
     from: String,
     name: String,
-  //  attachments: [String],
+    date: Date,
     subject: String,
-    message: String
+    message: String,
+    attachments: [String],
 });
 
 //Mongo Models

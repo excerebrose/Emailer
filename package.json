@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon ./server.js",
+    "mail": "nodemon ./mail_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,9 +19,11 @@
     "body-parser": "^1.17.1",
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
+    "mail-notifier": "^0.3.0",
     "mongoose": "^4.9.9",
     "nodemailer": "^4.0.1",
     "nodemon": "^1.11.0",
+    "request": "^2.81.0",
     "twilio": "^3.0.0"
   }
 }
