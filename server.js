@@ -1,8 +1,10 @@
+require('dotenv').config({path: './config.env'});
+
 const express = require('express');
 const bodyParser= require('body-parser');
 const mongoose = require('mongoose');
-
-require('dotenv').config({path: './config.env'});
+const twilio_client = require('twilio')(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN); 
+const moment = require('moment');
 
 let db = null;
 const app = express();
@@ -10,6 +12,25 @@ const app = express();
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use('/static', express.static(__dirname + '/client'));
+
+
+sendAsSms = (emailObject) => {
+    const formatted_date = moment(emailObject.date).format('ddd, MMM Do YYYY, h:m A');
+    let attachmentString = 'None';
+    if (emailObject.attachments.length > 0)
+        attachmentString = emailObject.attachments.join (" ");
+
+    const smsbody = `New email from:${emailObject.from}, at ${formatted_date}.\nSub: ${emailObject.subject}\nMessage: ${emailObject.message}\nAttachments: ${attachmentString}`;
+    
+    twilio_client.messages.create({ 
+        to: process.env.PHONE_NUMBER, 
+        from: process.env.TWILIO_NUMBER, 
+        body: smsbody, 
+    }, function(err, message) {
+        if(err) 
+            console.log("Error sending SMS:" + err);
+    });
+}
 
 mongoose.connect(process.env.DB_URL);
 
@@ -29,6 +50,7 @@ const EmailSchema = mongoose.Schema({
 //Mongo Models
 let Email = mongoose.model('Emails', EmailSchema);
 
+
 //Handlers
 db.once('open', function() {
     console.log("Connection to DB Establish");
@@ -41,7 +63,10 @@ db.once('open', function() {
     app.post('/new-email', (req, res) => {
         new Email(req.body)
         .save((err, res) => {
-            console.log("Saved: "+ res);
+            if(err)
+                console.log("Save Failed:" + err);
+            else
+                sendAsSms(res);
         })
         res.redirect('/');
     });
