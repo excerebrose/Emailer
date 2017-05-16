@@ -4,8 +4,9 @@
   "description": "My journey across India",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon ./server.js",
-    "mail": "nodemon ./mail_server.js",
+    "dev:server": "nodemon ./server.js",
+    "dev:mail": "nodemon ./mail_server.js",
+    "dev": "yarn dev:server & yarn dev:mail",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
