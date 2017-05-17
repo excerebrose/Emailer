@@ -6,17 +6,32 @@ const mongoose = require('mongoose');
 const twilio_client = require('twilio')(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN); 
 const moment = require('moment');
 const validator = require('validator');
+const nodemailer = require('nodemailer');
 
 //Global Variable Declarations
 let db = null;
 const app = express();
+let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.IMAP_USER,
+        pass: process.env.IMAP_PASS
+    }
+});
+
 let incomingEmail = {state: null, nextState:"init", obj: null};
 
 //Basic Express App Setup
 app.use(bodyParser.urlencoded({extended: true}));
 app.use('/static', express.static(__dirname + '/client'));
 
-// Functions to do interaction with Twilio Client
+// Helper Functions
+setEmailObject = (state=null, nextState=null, obj = null) => {
+    incomingEmail.state = state;
+    incomingEmail.nextState = nextState;
+    incomingEmail.obj = obj;
+}
+
 sendSMS = (smsbody) => {
      twilio_client.messages.create({ 
         to: process.env.PHONE_NUMBER, 
@@ -31,8 +46,20 @@ sendSMS = (smsbody) => {
 
 sendEmail = () => {
     //Code to send Email and onSuccess return String and clear out global incomingEmail
-
+    const mailOptions = {
+        from: process.env.IMAP_USER, 
+        to: incomingEmail.to, 
+        subject: incomingEmail.sub, 
+        text: incomingEmail.msg,
+    };
     setEmailObject();
+    transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+            console.log(error);
+            return 'Error Sending Email, Try Again..'
+        }
+        return 'Message Sent!';
+    });
 }
 
 parseToSMS = (emailObject) => {
@@ -72,12 +99,6 @@ parseToSMS = (emailObject) => {
     else 
         sendSMS(sms);
     console.info("Done Sending!");
-}
-
-setEmailObject = (state=null, nextState=null, obj = null) => {
-    incomingEmail.state = state;
-    incomingEmail.nextState = nextState;
-    incomingEmail.obj = obj;
 }
 
 parseToEmail = (smsObject) => {

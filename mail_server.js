@@ -1,4 +1,4 @@
-require('dotenv').config({path: './mail_config.env'});
+require('dotenv').config({path: './config.env'});
 
 const notifier = require('mail-notifier');
 const request = require('request');
