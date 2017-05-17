@@ -26,6 +26,7 @@
     "nodemailer": "^4.0.1",
     "nodemon": "^1.11.0",
     "request": "^2.81.0",
-    "twilio": "^3.0.0"
+    "twilio": "^3.0.0",
+    "validator": "^7.0.0"
   }
 }

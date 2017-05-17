@@ -5,11 +5,12 @@ const bodyParser= require('body-parser');
 const mongoose = require('mongoose');
 const twilio_client = require('twilio')(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN); 
 const moment = require('moment');
+const validator = require('validator');
 
 //Global Variable Declarations
 let db = null;
 const app = express();
-let incomingEmail = {state: null, nextState="init", obj: null};
+let incomingEmail = {state: null, nextState:"init", obj: null};
 
 //Basic Express App Setup
 app.use(bodyParser.urlencoded({extended: true}));
@@ -28,8 +29,10 @@ sendSMS = (smsbody) => {
     });
 }
 
-sendEmail = (emailObject) => {
-    //Code to send Email and onSuccess call sendSMS with (Sent!)
+sendEmail = () => {
+    //Code to send Email and onSuccess return String and clear out global incomingEmail
+
+    setEmailObject();
 }
 
 parseToSMS = (emailObject) => {
@@ -70,11 +73,8 @@ parseToSMS = (emailObject) => {
         sendSMS(sms);
     console.info("Done Sending!");
 }
-validEmailAddress = (email) => {
-    return true;
-}
 
-setEmailObject = (state=null, nextState=null, obj = null) {
+setEmailObject = (state=null, nextState=null, obj = null) => {
     incomingEmail.state = state;
     incomingEmail.nextState = nextState;
     incomingEmail.obj = obj;
@@ -100,7 +100,7 @@ parseToEmail = (smsObject) => {
         case currentCommand == "eid":
             if(incomingEmail.nextState != "eid")
                 nextSMS = incorrectStep;
-            else if (validEmailAddress(str)) {
+            else if (validator.isEmail(str)) {
                 setEmailObject("eid","sub", {to: str});
                 nextSMS = subjectQuery;
             }
