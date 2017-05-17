@@ -186,17 +186,19 @@ db.once('open', function() {
     app.post('/new-email', (req, res) => {
         new Email(req.body)
         .save((err, res) => {
-            if(err)
+            if(err) {
                 console.log("Save Failed:" + err);
+                res.send(400);
+            }
             else
                 parseToSMS(res);
         })
-        res.redirect('/');
+        res.sendStatus(200);
     });
     //Handle a call from Twilio Webhook to handle incoming SMS and take necessary Steps
     app.post('/new-sms', (req, res) => {
         parseToEmail(req.body);
-        res.redirect('/');
+        res.sendStatus(200);
     });
 });
 
