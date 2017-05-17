@@ -9,6 +9,7 @@ const moment = require('moment');
 //Global Variable Declarations
 let db = null;
 const app = express();
+let incomingEmail = {state: null, nextState="init", obj: null};
 
 //Basic Express App Setup
 app.use(bodyParser.urlencoded({extended: true}));
@@ -69,9 +70,64 @@ parseToSMS = (emailObject) => {
         sendSMS(sms);
     console.info("Done Sending!");
 }
+validEmailAddress = (email) => {
+    return true;
+}
+
+setEmailObject = (state=null, nextState=null, obj = null) {
+    incomingEmail.state = state;
+    incomingEmail.nextState = nextState;
+    incomingEmail.obj = obj;
+}
 
 parseToEmail = (smsObject) => {
-    //Code to parse smsObject to an EmailObject
+    const toQuery = "Receipient Email ID? (Reply as eid:name@xyz.com)";
+    const subjectQuery = "Subject? (Reply as sub: Bla Bla Bla!)";
+    const messageQuery = "Message? (Reply as msg: Bla bla bla) (Under 1600 characs)";
+    const incorrectStep = `Wrong step! Please enter: ${incomingEmail.nextState} or Start new email`;
+
+    const currentCommand = smsObject.substring(0,3).toLowerCase();
+    const str = smsObject.substring(4, smsObject.length);
+
+    let nextSMS = "";
+    switch(currentCommand) {
+        case currentCommand == "new":
+            if (incomingEmail.state)
+                nextSMS = "Existing email deleted. Starting again\n";
+            setEmailObject("init","eid");
+            nextSMS+=toQuery;
+            break;
+        case currentCommand == "eid":
+            if(incomingEmail.nextState != "eid")
+                nextSMS = incorrectStep;
+            else if (validEmailAddress(str)) {
+                setEmailObject("eid","sub", {to: str});
+                nextSMS = subjectQuery;
+            }
+            else
+                nextSMS="Invalid Email Address! Try Again:..";
+            break;
+        case currentCommand == "sub":
+            if(incomingEmail.nextState != "sub")
+                nextSMS = incorrectStep;
+            else {
+                setEmailObject("sub","msg", {to: incomingEmail.to, sub: str});
+                nextSMS = messageQuery;
+            }
+            break;
+        case currentCommand == "msg":
+            if(incomingEmail.nextState != "msg")
+                nextSMS = incorrectStep;
+            else {
+                setEmailObject("msg","end", {to: incomingEmail.to, sub: incomingEmail.sub, msg:str});
+                nextSMS = sendEmail();
+            }
+            break;
+        default:
+            nextSMS = "Command Not Found - Try Again";
+            break;
+    };
+    sendSMS(nextSMS);
 }
 
 
@@ -122,6 +178,5 @@ db.once('open', function() {
         res.redirect('/');
     });
 });
-
 
 
