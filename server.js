@@ -19,17 +19,23 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-let incomingEmail = {state: null, nextState:"init", obj: null};
+let incomingEmail = {state: null, nextState:"init", obj: {}};
 
 //Basic Express App Setup
 app.use(bodyParser.urlencoded({extended: true}));
 app.use('/static', express.static(__dirname + '/client'));
 
 // Helper Functions
-setEmailObject = (state=null, nextState=null, obj = null) => {
+updateEmailState = (state=null, nextState=null) => {
     incomingEmail.state = state;
     incomingEmail.nextState = nextState;
-    incomingEmail.obj = obj;
+}
+
+addNewEmailObjectProperty = (key=null, value=null) => {
+    if(key && value)
+        incomingEmail.obj[key] = value;
+    else
+        incomingEmail.obj = {};
 }
 
 sendSMS = (smsbody) => {
@@ -48,18 +54,18 @@ sendEmail = () => {
     //Code to send Email and onSuccess return String and clear out global incomingEmail
     const mailOptions = {
         from: process.env.IMAP_USER, 
-        to: incomingEmail.to, 
-        subject: incomingEmail.sub, 
-        text: incomingEmail.msg,
+        to: incomingEmail.obj.to, 
+        subject: incomingEmail.obj.sub, 
+        text: incomingEmail.obj.msg,
     };
-    setEmailObject();
-    transporter.sendMail(mailOptions, (err, info) => {
+   updateEmailState();
+   addNewEmailObjectProperty();
+   transporter.sendMail(mailOptions, (err, info) => {
         if (err) {
-            console.log(error);
-            return 'Error Sending Email, Try Again..'
+            console.log(err);
         }
-        return 'Message Sent!';
     });
+    return 'Email Sent!';
 }
 
 parseToSMS = (emailObject) => {
@@ -108,39 +114,43 @@ parseToEmail = (smsObject) => {
     const incorrectStep = `Wrong step! Please enter: ${incomingEmail.nextState} or Start new email`;
 
     const currentCommand = smsObject.substring(0,3).toLowerCase();
-    const str = smsObject.substring(4, smsObject.length);
+    let str = smsObject.substring(4, smsObject.length);
 
     let nextSMS = "";
     switch(currentCommand) {
-        case currentCommand == "new":
+        case "new":
             if (incomingEmail.state)
                 nextSMS = "Existing email deleted. Starting again\n";
-            setEmailObject("init","eid");
+            updateEmailState("init","eid");
             nextSMS+=toQuery;
             break;
-        case currentCommand == "eid":
+        case "eid":
+            str = str.replace(/\s/g, "");
             if(incomingEmail.nextState != "eid")
                 nextSMS = incorrectStep;
             else if (validator.isEmail(str)) {
-                setEmailObject("eid","sub", {to: str});
+                updateEmailState("eid","sub");
+                addNewEmailObjectProperty("to",str);
                 nextSMS = subjectQuery;
             }
             else
                 nextSMS="Invalid Email Address! Try Again:..";
             break;
-        case currentCommand == "sub":
+        case "sub":
             if(incomingEmail.nextState != "sub")
                 nextSMS = incorrectStep;
             else {
-                setEmailObject("sub","msg", {to: incomingEmail.to, sub: str});
+                updateEmailState("sub","msg");
+                addNewEmailObjectProperty("sub", str);
                 nextSMS = messageQuery;
             }
             break;
-        case currentCommand == "msg":
+        case "msg":
             if(incomingEmail.nextState != "msg")
                 nextSMS = incorrectStep;
             else {
-                setEmailObject("msg","end", {to: incomingEmail.to, sub: incomingEmail.sub, msg:str});
+                updateEmailState("msg","end");
+                addNewEmailObjectProperty("msg", str);
                 nextSMS = sendEmail();
             }
             break;
@@ -197,7 +207,7 @@ db.once('open', function() {
     });
     //Handle a call from Twilio Webhook to handle incoming SMS and take necessary Steps
     app.post('/new-sms', (req, res) => {
-        parseToEmail(req.body);
+        parseToEmail(req.body.Body);
         res.sendStatus(200);
     });
 });
