@@ -21,10 +21,6 @@ let transporter = nodemailer.createTransport({
 
 let incomingEmail = {state: null, nextState:"init", obj: {}};
 
-//Basic Express App Setup
-app.use(bodyParser.urlencoded({extended: true}));
-app.use('/static', express.static(__dirname + '/client'));
-
 // Helper Functions
 updateEmailState = (state=null, nextState=null) => {
     incomingEmail.state = state;
@@ -58,13 +54,15 @@ sendEmail = () => {
         subject: incomingEmail.obj.sub, 
         text: incomingEmail.obj.msg,
     };
-   updateEmailState();
-   addNewEmailObjectProperty();
    transporter.sendMail(mailOptions, (err, info) => {
         if (err) {
             console.log(err);
+            sendSMS("Email Sending Failed! Try Again..")
         }
     });
+    //Empty out the global mail object
+    updateEmailState();
+    addNewEmailObjectProperty();
     return 'Email Sent!';
 }
 
@@ -163,6 +161,11 @@ parseToEmail = (smsObject) => {
 
 
 // Express App 
+
+//Basic Express App Setup
+app.use(bodyParser.urlencoded({extended: true}));
+app.use('/static', express.static(__dirname + '/client'));
+
 mongoose.connect(process.env.DB_URL);
 
 db = mongoose.connection;
