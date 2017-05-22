@@ -3,7 +3,7 @@ A NodeJS Application to Send and Receive Emails via Twilio SMS!
 
 ## Initial Setup
 - Clone the repository.
-- Install dependencies 
+- Install dependencies (If you don't want to use Yarn, just replace the commands below with **npm** )
   ```
   yarn install
   ```

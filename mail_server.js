@@ -16,15 +16,14 @@ const inbox = {
 };
 
 notifier(inbox).on('mail', (mail) => {
-    let attachments = mail.attachments? mail.attachments : [];
-    attachments = attachments.map(value => value.fileName);
+    console.log(mail.subject);
     const mailObject = {
         from: mail.from[0].address,
         name: mail.from[0].name,
         date: mail.receivedDate,
-        subject: mail.subject,
-        message: mail.text,
-        attachments,
+        subject: mail.subject? mail.subject : 'No Subject',
+        message: mail.text && mail.text.replace(/\s/g,'').length > 0? mail.text : 'No Message body',
+        attachments: mail.attachments? mail.attachments.map(value => value.fileName).join(' ') : 'None',
     };
     request.post(process.env.WEBHOOK_TARGET).form(mailObject);
     console.info("New Email Received!")

@@ -8,9 +8,9 @@ const moment = require('moment');
 const validator = require('validator');
 const nodemailer = require('nodemailer');
 
-//Global Variable Declarations
-let db = null;
-const app = express();
+// Helper Functions
+let incomingEmail = {state: null, nextState:"init", obj: {}};
+
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -19,9 +19,6 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-let incomingEmail = {state: null, nextState:"init", obj: {}};
-
-// Helper Functions
 updateEmailState = (state=null, nextState=null) => {
     incomingEmail.state = state;
     incomingEmail.nextState = nextState;
@@ -68,18 +65,15 @@ sendEmail = () => {
 
 parseToSMS = (emailObject) => {
     const maxChars = 1500; //Changed to 1500 because of Twilio's injection into free accounts - move it up to 1600 later'
-    const continueMsg = "\nContinued in Next SMS. - Number ";
-
     const formattedDate = moment(emailObject.date).format('ddd, MMM Do YYYY, h:m A');
-    let attachmentString = 'None';
-    if (emailObject.attachments.length > 0)
-        attachmentString = emailObject.attachments.join (" ");
-    const smsBodyHeader = `New email from:${emailObject.from}, at ${formattedDate}.\nSub: ${emailObject.subject}\nAttachments: ${attachmentString}\n`;
-    
     let messageBody = emailObject.message;
-    let availableChars = maxChars - smsBodyHeader.length;
     
+    const smsBodyHeader = `New email from:${emailObject.from}, at ${formattedDate}.\nSub: ${emailObject.subject}\nAttachments: ${emailObject.attachments}\n`;
     let sms = smsBodyHeader + messageBody;
+
+    //Helpers
+    let availableChars = maxChars - smsBodyHeader.length;    
+    const continueMsg = "\nContinued in Next SMS. - Number ";
 
     if (messageBody.length > availableChars) {
         console.info("HUGE ASS EMAIL DETECTED! - Splitting to save us!");
@@ -161,6 +155,8 @@ parseToEmail = (smsObject) => {
 
 
 // Express App 
+let db = null;
+const app = express();
 
 //Basic Express App Setup
 app.use(bodyParser.urlencoded({extended: true}));
@@ -178,7 +174,7 @@ const EmailSchema = mongoose.Schema({
     date: Date,
     subject: String,
     message: String,
-    attachments: [String],
+    attachments: String,
 });
 
 //Mongo Models
