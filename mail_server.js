@@ -16,7 +16,6 @@ const inbox = {
 };
 
 notifier(inbox).on('mail', (mail) => {
-    console.log(mail.subject);
     const mailObject = {
         from: mail.from[0].address,
         name: mail.from[0].name,
