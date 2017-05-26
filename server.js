@@ -9,16 +9,8 @@ const validator = require('validator');
 const nodemailer = require('nodemailer');
 
 // Helper Functions
-//let incomingEmail = {state: null, nextState:"init", obj: {}};
-
 /*
-let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.IMAP_USER,
-        pass: process.env.IMAP_PASS
-    }
-});
+let incomingEmail = {state: null, nextState:"init", obj: {}};
 
 updateEmailState = (state=null, nextState=null) => {
     incomingEmail.state = state;
