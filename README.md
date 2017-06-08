@@ -19,13 +19,13 @@ To run only the main server:
 ```
 yarn dev:server
 ```
-To run only the IMAP server:
+To run only the IMAP Client:
 ```
 yarn dev:mail
 ```
 ## How the project works
 Basically you have two (Limited) Options to work with at the moment. **Receive** and **Send**
-- Your IMAP Server listens for new incoming emails and sends the to you via SMS
+- Your IMAP Client listens for new incoming emails and sends the to you via SMS
 - You can initiate a new E-mail at any point by texting from your phone to your Twilio Number by sending the following messages and waiting for a reply for the next step:
 ```
 You: New
