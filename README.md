@@ -24,6 +24,5 @@ To run only the IMAP server:
 yarn dev:mail
 ```
 ## How the project works
-Basically you have two (Limited) Options to work with at the moment. **Receive** and **Send**
-- Your IMAP Server listens for new incoming emails and sends the to you via SMS
+Your IMAP Client listens for new incoming emails and sends the to you via SMS
 
