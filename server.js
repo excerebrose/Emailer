@@ -65,14 +65,22 @@ function parseToSMS(emailObject) {
    console.info("Done Sending!.");
 }
 
-//Nodemailer handler
+/* Email Object setup and helper functions*/
+// let incomingEmail = .....
+
+// function updateEmailState(...) {....}
+
+// function addNewEmailObjectProperty(...) {....}
+
+
+/* Nodemailer handler */
 //let transporter = .....
 
 
-//Send Email Function
+/* Send Email Function */
 // function sendEmail() {......}
 
-//Parse Email Function 
+/* Parse Email Function  */
 // function parseToEmail() {.....}
 
 
