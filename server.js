@@ -2,9 +2,9 @@ require('dotenv').config({path: './config.env'});
 
 const express = require('express');
 const bodyParser= require('body-parser');
-const mongoose = require('mongoose');
 const twilio_client = require('twilio')(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN); 
 const moment = require('moment');
+const validator = require('validator');
 const nodemailer = require('nodemailer');
 
 
