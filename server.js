@@ -100,57 +100,46 @@ parseToSMS = (emailObject) => {
 }
 
 parseToEmail = (smsObject) => {
-    const toQuery = "Receipient Email ID? (Reply as eid:name@xyz.com)";
-    const subjectQuery = "Subject? (Reply as sub: Bla Bla Bla!)";
-    const messageQuery = "Message? (Reply as msg: Bla bla bla) (Under 1600 characs)";
-    const incorrectStep = `Wrong step! Please enter: ${incomingEmail.nextState} or Start new email`;
+  const toQuery = 'Recipient Email address?';
+  const subjectQuery = 'Subject?';
+  const messageQuery = 'Message? (Under 1600 characs)';
 
-    const currentCommand = smsObject.substring(0,3).toLowerCase();
-    let str = smsObject.substring(4, smsObject.length);
+  smsBody = smsBody.trim();
+  const isNew = smsBody.toLowerCase() === 'new';
+  let nextSMS = '';
 
-    let nextSMS = "";
-    switch(currentCommand) {
-        case "new":
-            if (incomingEmail.state)
-                nextSMS = "Existing email deleted. Starting again\n";
-            updateEmailState("init","eid");
-            nextSMS+=toQuery;
-            break;
-        case "eid":
-            str = str.replace(/\s/g, "");
-            if(incomingEmail.nextState != "eid")
-                nextSMS = incorrectStep;
-            else if (validator.isEmail(str)) {
-                updateEmailState("eid","sub");
-                addNewEmailObjectProperty("to",str);
-                nextSMS = subjectQuery;
-            }
-            else
-                nextSMS="Invalid Email Address! Try Again:..";
-            break;
-        case "sub":
-            if(incomingEmail.nextState != "sub")
-                nextSMS = incorrectStep;
-            else {
-                updateEmailState("sub","msg");
-                addNewEmailObjectProperty("sub", str);
-                nextSMS = messageQuery;
-            }
-            break;
-        case "msg":
-            if(incomingEmail.nextState != "msg")
-                nextSMS = incorrectStep;
-            else {
-                updateEmailState("msg","end");
-                addNewEmailObjectProperty("msg", str);
-                nextSMS = sendEmail();
-            }
-            break;
-        default:
-            nextSMS = "Command Not Found - Try Again";
-            break;
-    };
-    sendSMS(nextSMS);
+  if (isNew) {
+    if (incomingEmail.state)
+      nextSMS = 'Existing email deleted. Starting again\n';
+    updateEmailState('init', 'eid');
+    nextSMS += toQuery;
+  } else {
+    switch (incomingEmail.nextState) {
+      case 'eid':
+        if (validator.isEmail(smsBody)) {
+          updateEmailState('eid', 'sub');
+          addNewEmailObjectProperty('to', smsBody);
+          nextSMS = subjectQuery;
+        } else {
+          nextSMS = 'Invalid Email Address! Try Again:..';
+        }
+        break;
+      case 'sub':
+        updateEmailState('sub', 'msg');
+        addNewEmailObjectProperty('sub', smsBody);
+        nextSMS = messageQuery;
+        break;
+      case 'msg':
+        updateEmailState('msg', 'end');
+        addNewEmailObjectProperty('msg', smsBody);
+        nextSMS = sendEmail();
+        break;
+      default:
+        nextSMS = 'Would you like to send a new email? Start by texting in "new".';
+        break;
+    }
+  }
+  sendSMS(nextSMS);
 }
 
 

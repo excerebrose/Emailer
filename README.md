@@ -29,11 +29,11 @@ Basically you have two (Limited) Options to work with at the moment. **Receive**
 - You can initiate a new E-mail at any point by texting from your phone to your Twilio Number by sending the following messages and waiting for a reply for the next step:
 ```
 You: New
-[Your Twilio Number]: Receipient Email ID? (Reply as eid:name@xyz.com)
-You: eid: abc@xyz.com 
-[Your Twilio Number]: Subject? (Reply as sub: Bla Bla Bla!)
-You: sub: Heya
-[Your Twilio Number]: Message? (Reply as msg: Bla bla bla) (Under 1600 characs)
-You: msg: First Test Email!
+[Your Twilio Number]: Receipient Email ID? 
+You: abc@xyz.com 
+[Your Twilio Number]: Subject?
+You: Heya
+[Your Twilio Number]: Message? (Under 1600 characs)
+You: First Test Email!
 [Your Twilio Number]: Email Sent!
 ```
