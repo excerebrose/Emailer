@@ -23,7 +23,7 @@
     "mail-notifier": "^0.3.0",
     "moment": "^2.18.1",
     "mongoose": "^4.9.9",
-    "nodemailer": "^4.0.1",
+    "nodemailer": "^6.4.16",
     "nodemon": "^1.11.0",
     "request": "^2.81.0",
     "twilio": "^3.0.0",
