@@ -27,6 +27,6 @@
     "nodemon": "^1.11.0",
     "request": "^2.81.0",
     "twilio": "^3.0.0",
-    "validator": "^7.0.0"
+    "validator": "^13.7.0"
   }
 }
